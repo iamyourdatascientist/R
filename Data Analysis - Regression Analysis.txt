@@ -1,0 +1,489 @@
+Data Analysis - Regression Analysis
+
+It's one of the first tools used when analysing your dataset. machine learning algoritham.
+it involves estimating the relationship between different variables / dimensions.
+
+Mainly there are 4 types of analysis when it comes to Regression Analysis.
+
+1. Simple regression
+2. Multiple regression
+3. Multivariate regression
+4. Robust regression
+
+We will look at one at a time
+
+1. Simpe Regression
+=================
+Required Packages
+"chemometrics" has tools to analyse chemometrics data.
+"MASS" has modern applied statistics with S
+so without a due let's jump to R
+
+iris
+
+elegant way to check if package alredy installed or not.
+
+if (!require("chemometrics")) install.packages("chemometrics")
+
+don't forget Ctrl+L to clear R console.
+Let's install another required package "MASS"
+
+Let's interogate Iris dataset by
+head(iris) ## this provides sample dataset from data.
+## to see structure
+str(iris) ## provides you with data type, number of observation
+number of dimension/variable etc.
+
+## lets look at the summary function
+
+summary(iris)
+It provides Minimum, Max, 1st Quntile
+Media, Mean (Average) and 3rd Q 
+
+Let's plot all variable , i mean variable vs variable
+plot(iris)
+
+It's is clearly visible that there's positive correlation between Patal Width and Petal Lenth
+
+
+let's check that there is linear / strong relationship (correlation) 
+between these to variables Petal.Width Vs Petal.Lenth
+cor(iris$Petal.length, Petal.Width)
+you should have got an error
+
+can you figure out why?? give you 30 sec to think.........
+
+cor(iris$Petal.length, Petal.Width)
+lets type in console
+
+cor(iris$Petal.Length, iris$Petal.Width) ## note: r is case sensitive
+correlation gives 0.963 which is very close to 1.0
+
+see you in part 3
+
+This is part 3, 
+in part 2 we looked at plot , correlation between variables and
+determine that Patel width and length has linear relationship.
+
+now lets look at regression between these tow variables.
+fit_iris<- lam(iris$Petal.Length~ iris$Petal.Width)
+
+got an error because i missed typed  "~" wave character 
+not sure what it is called. I call it wave.
+
+straight line interceptor
+ y=mx+c
+
+The formula 
+y = mx + c
+m= dependent variable
+
+The equation of a straight line on a graph is made up of a y term, an x term, and a number and are written in the form of y = mx + c.
+
+1. The slope of the line is known as the gradient and is represented by m in the equation.
+
+2. The point at which the line crosses the y-axis is the c in the equation
+
+we get x, and c the interceptor
+y= predicting varible
+we want to predict length so the formula is
+Patel.Length = (Petal.Width*2.230)+ 1.084
+y = mx + c
+
+
+
+let's fit information on four different charts
+
+but first understand what each graph does:
+
+1. Residuals vs Fitted: difference between observed data and projected/fitted values from model.
+
+2. Normal QQ: Quantile , the normalised quantile of the data point versus the actual.
+
+3. Scale Location: It's the square root of standardised residuals as a function of fitted values.
+
+4. Residuals Vs Leverage: Leverage is the importance of data point in determinig the regression result.
+
+don't worry I will share this script via blog and github.
+
+
+lets plot these four graphs:
+par(mfrow=c(2,2))## this to say plot 2 graph at a time
+plot(fit_iris)
+
+## check residuals
+residuals(fit_iris)
+this reveals some outliers but let's check summary of the fit model
+summary(fit_iris)
+
+
+> summary(fit_iris)
+
+Call:
+lm(formula = iris$Petal.Length ~ iris$Petal.Width)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.33542 -0.30347 -0.02955  0.25776  1.39453 
+
+Coefficients:
+                 Estimate Std. Error t value Pr(>|t|)    
+(Intercept)       1.08356    0.07297   14.85   <2e-16 ***
+iris$Petal.Width  2.22994    0.05140   43.39   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.4782 on 148 degrees of freedom
+Multiple R-squared:  0.9271,	Adjusted R-squared:  0.9266 
+F-statistic:  1882 on 1 and 148 DF,  p-value: < 2.2e-16
+
+The summary reveals us several key information about or 
+new "fit_iris" model
+
+1. it shows what's our model based on
+2. rang of residuls. residule appear to be small range.
+3. the coefficiet: std error very low. so it's good model
+4. Intercept of 1.1
+5. Petal.Width estimated 2.2, which is quite good
+
+residuals vary from -1 to +1
+
+lets look at raw data again see if we can find out what casueing this residuals ranging from -1 to 1
+There are three different types of iris flowers
+1.virginica
+2.versicolor
+3.setosa
+here is the actual dataset (not a fit_iris model)
+iris
+   Sepal.Length Sepal.Width Petal.Length Petal.Width    Species
+1            5.1         3.5          1.4         0.2     setosa
+2            4.9         3.0          1.4         0.2     setosa
+3            4.7         3.2          1.3         0.2     setosa
+4            4.6         3.1          1.5         0.2     setosa
+5            5.0         3.6          1.4         0.2     setosa
+6            5.4         3.9          1.7         0.4     setosa
+7            4.6         3.4          1.4         0.3     setosa
+8            5.0         3.4          1.5         0.2     setosa
+9            4.4         2.9          1.4         0.2     setosa
+10           4.9         3.1          1.5         0.1     setosa
+11           5.4         3.7          1.5         0.2     setosa
+12           4.8         3.4          1.6         0.2     setosa
+13           4.8         3.0          1.4         0.1     setosa
+14           4.3         3.0          1.1         0.1     setosa
+15           5.8         4.0          1.2         0.2     setosa
+16           5.7         4.4          1.5         0.4     setosa
+17           5.4         3.9          1.3         0.4     setosa
+18           5.1         3.5          1.4         0.3     setosa
+19           5.7         3.8          1.7         0.3     setosa
+20           5.1         3.8          1.5         0.3     setosa
+21           5.4         3.4          1.7         0.2     setosa
+22           5.1         3.7          1.5         0.4     setosa
+23           4.6         3.6          1.0         0.2     setosa
+24           5.1         3.3          1.7         0.5     setosa
+25           4.8         3.4          1.9         0.2     setosa
+26           5.0         3.0          1.6         0.2     setosa
+27           5.0         3.4          1.6         0.4     setosa
+28           5.2         3.5          1.5         0.2     setosa
+29           5.2         3.4          1.4         0.2     setosa
+30           4.7         3.2          1.6         0.2     setosa
+31           4.8         3.1          1.6         0.2     setosa
+32           5.4         3.4          1.5         0.4     setosa
+33           5.2         4.1          1.5         0.1     setosa
+34           5.5         4.2          1.4         0.2     setosa
+35           4.9         3.1          1.5         0.2     setosa
+36           5.0         3.2          1.2         0.2     setosa
+37           5.5         3.5          1.3         0.2     setosa
+38           4.9         3.6          1.4         0.1     setosa
+39           4.4         3.0          1.3         0.2     setosa
+40           5.1         3.4          1.5         0.2     setosa
+41           5.0         3.5          1.3         0.3     setosa
+42           4.5         2.3          1.3         0.3     setosa
+43           4.4         3.2          1.3         0.2     setosa
+44           5.0         3.5          1.6         0.6     setosa
+45           5.1         3.8          1.9         0.4     setosa
+46           4.8         3.0          1.4         0.3     setosa
+47           5.1         3.8          1.6         0.2     setosa
+48           4.6         3.2          1.4         0.2     setosa
+49           5.3         3.7          1.5         0.2     setosa
+50           5.0         3.3          1.4         0.2     setosa
+51           7.0         3.2          4.7         1.4 versicolor
+52           6.4         3.2          4.5         1.5 versicolor
+53           6.9         3.1          4.9         1.5 versicolor
+54           5.5         2.3          4.0         1.3 versicolor
+55           6.5         2.8          4.6         1.5 versicolor
+56           5.7         2.8          4.5         1.3 versicolor
+57           6.3         3.3          4.7         1.6 versicolor
+58           4.9         2.4          3.3         1.0 versicolor
+59           6.6         2.9          4.6         1.3 versicolor
+60           5.2         2.7          3.9         1.4 versicolor
+61           5.0         2.0          3.5         1.0 versicolor
+62           5.9         3.0          4.2         1.5 versicolor
+63           6.0         2.2          4.0         1.0 versicolor
+64           6.1         2.9          4.7         1.4 versicolor
+65           5.6         2.9          3.6         1.3 versicolor
+66           6.7         3.1          4.4         1.4 versicolor
+67           5.6         3.0          4.5         1.5 versicolor
+68           5.8         2.7          4.1         1.0 versicolor
+69           6.2         2.2          4.5         1.5 versicolor
+70           5.6         2.5          3.9         1.1 versicolor
+71           5.9         3.2          4.8         1.8 versicolor
+72           6.1         2.8          4.0         1.3 versicolor
+73           6.3         2.5          4.9         1.5 versicolor
+74           6.1         2.8          4.7         1.2 versicolor
+75           6.4         2.9          4.3         1.3 versicolor
+76           6.6         3.0          4.4         1.4 versicolor
+77           6.8         2.8          4.8         1.4 versicolor
+78           6.7         3.0          5.0         1.7 versicolor
+79           6.0         2.9          4.5         1.5 versicolor
+80           5.7         2.6          3.5         1.0 versicolor
+81           5.5         2.4          3.8         1.1 versicolor
+82           5.5         2.4          3.7         1.0 versicolor
+83           5.8         2.7          3.9         1.2 versicolor
+84           6.0         2.7          5.1         1.6 versicolor
+85           5.4         3.0          4.5         1.5 versicolor
+86           6.0         3.4          4.5         1.6 versicolor
+87           6.7         3.1          4.7         1.5 versicolor
+88           6.3         2.3          4.4         1.3 versicolor
+89           5.6         3.0          4.1         1.3 versicolor
+90           5.5         2.5          4.0         1.3 versicolor
+91           5.5         2.6          4.4         1.2 versicolor
+92           6.1         3.0          4.6         1.4 versicolor
+93           5.8         2.6          4.0         1.2 versicolor
+94           5.0         2.3          3.3         1.0 versicolor
+95           5.6         2.7          4.2         1.3 versicolor
+96           5.7         3.0          4.2         1.2 versicolor
+97           5.7         2.9          4.2         1.3 versicolor
+98           6.2         2.9          4.3         1.3 versicolor
+99           5.1         2.5          3.0         1.1 versicolor
+100          5.7         2.8          4.1         1.3 versicolor
+101          6.3         3.3          6.0         2.5  virginica
+102          5.8         2.7          5.1         1.9  virginica
+103          7.1         3.0          5.9         2.1  virginica
+104          6.3         2.9          5.6         1.8  virginica
+105          6.5         3.0          5.8         2.2  virginica
+106          7.6         3.0          6.6         2.1  virginica
+107          4.9         2.5          4.5         1.7  virginica
+108          7.3         2.9          6.3         1.8  virginica
+109          6.7         2.5          5.8         1.8  virginica
+110          7.2         3.6          6.1         2.5  virginica
+111          6.5         3.2          5.1         2.0  virginica
+112          6.4         2.7          5.3         1.9  virginica
+113          6.8         3.0          5.5         2.1  virginica
+114          5.7         2.5          5.0         2.0  virginica
+115          5.8         2.8          5.1         2.4  virginica
+116          6.4         3.2          5.3         2.3  virginica
+117          6.5         3.0          5.5         1.8  virginica
+118          7.7         3.8          6.7         2.2  virginica
+119          7.7         2.6          6.9         2.3  virginica
+120          6.0         2.2          5.0         1.5  virginica
+121          6.9         3.2          5.7         2.3  virginica
+122          5.6         2.8          4.9         2.0  virginica
+123          7.7         2.8          6.7         2.0  virginica
+124          6.3         2.7          4.9         1.8  virginica
+125          6.7         3.3          5.7         2.1  virginica
+126          7.2         3.2          6.0         1.8  virginica
+127          6.2         2.8          4.8         1.8  virginica
+128          6.1         3.0          4.9         1.8  virginica
+129          6.4         2.8          5.6         2.1  virginica
+130          7.2         3.0          5.8         1.6  virginica
+131          7.4         2.8          6.1         1.9  virginica
+132          7.9         3.8          6.4         2.0  virginica
+133          6.4         2.8          5.6         2.2  virginica
+134          6.3         2.8          5.1         1.5  virginica
+135          6.1         2.6          5.6         1.4  virginica
+136          7.7         3.0          6.1         2.3  virginica
+137          6.3         3.4          5.6         2.4  virginica
+138          6.4         3.1          5.5         1.8  virginica
+139          6.0         3.0          4.8         1.8  virginica
+140          6.9         3.1          5.4         2.1  virginica
+141          6.7         3.1          5.6         2.4  virginica
+142          6.9         3.1          5.1         2.3  virginica
+143          5.8         2.7          5.1         1.9  virginica
+144          6.8         3.2          5.9         2.3  virginica
+145          6.7         3.3          5.7         2.5  virginica
+146          6.7         3.0          5.2         2.3  virginica
+147          6.3         2.5          5.0         1.9  virginica
+148          6.5         3.0          5.2         2.0  virginica
+149          6.2         3.4          5.4         2.3  virginica
+150          5.9         3.0          5.1         1.8  virginica
+
+it seems like setosa has /are too extrem residuls values, lets remove setosa from dataset and fit model again.
+
+
+Welcome back to part 4
+====================
+let's recap what we covered in part 3:
+we fitted model, check residule
+draw four types of graphs i.e residuals vs fitted, residual vs leverage etc.
+
+also we had establised that we will exclude setosa from dataset and see if that improves model performance.
+
+##excluding setosa iris flower type
+iris2<-subset(iris,iris$species!='setosa')
+
+i got error because I had missed type Spicies variale name without capital S, in dataset variable is capital / upper case Spicies
+
+> iris2<-subset(iris,iris$Species!='setosa')
+> iris2
+    Sepal.Length Sepal.Width Petal.Length Petal.Width    Species
+51           7.0         3.2          4.7         1.4 versicolor
+52           6.4         3.2          4.5         1.5 versicolor
+53           6.9         3.1          4.9         1.5 versicolor
+54           5.5         2.3          4.0         1.3 versicolor
+55           6.5         2.8          4.6         1.5 versicolor
+56           5.7         2.8          4.5         1.3 versicolor
+57           6.3         3.3          4.7         1.6 versicolor
+58           4.9         2.4          3.3         1.0 versicolor
+59           6.6         2.9          4.6         1.3 versicolor
+60           5.2         2.7          3.9         1.4 versicolor
+61           5.0         2.0          3.5         1.0 versicolor
+62           5.9         3.0          4.2         1.5 versicolor
+63           6.0         2.2          4.0         1.0 versicolor
+64           6.1         2.9          4.7         1.4 versicolor
+65           5.6         2.9          3.6         1.3 versicolor
+66           6.7         3.1          4.4         1.4 versicolor
+67           5.6         3.0          4.5         1.5 versicolor
+68           5.8         2.7          4.1         1.0 versicolor
+69           6.2         2.2          4.5         1.5 versicolor
+70           5.6         2.5          3.9         1.1 versicolor
+71           5.9         3.2          4.8         1.8 versicolor
+72           6.1         2.8          4.0         1.3 versicolor
+73           6.3         2.5          4.9         1.5 versicolor
+74           6.1         2.8          4.7         1.2 versicolor
+75           6.4         2.9          4.3         1.3 versicolor
+76           6.6         3.0          4.4         1.4 versicolor
+77           6.8         2.8          4.8         1.4 versicolor
+78           6.7         3.0          5.0         1.7 versicolor
+79           6.0         2.9          4.5         1.5 versicolor
+80           5.7         2.6          3.5         1.0 versicolor
+81           5.5         2.4          3.8         1.1 versicolor
+82           5.5         2.4          3.7         1.0 versicolor
+83           5.8         2.7          3.9         1.2 versicolor
+84           6.0         2.7          5.1         1.6 versicolor
+85           5.4         3.0          4.5         1.5 versicolor
+86           6.0         3.4          4.5         1.6 versicolor
+87           6.7         3.1          4.7         1.5 versicolor
+88           6.3         2.3          4.4         1.3 versicolor
+89           5.6         3.0          4.1         1.3 versicolor
+90           5.5         2.5          4.0         1.3 versicolor
+91           5.5         2.6          4.4         1.2 versicolor
+92           6.1         3.0          4.6         1.4 versicolor
+93           5.8         2.6          4.0         1.2 versicolor
+94           5.0         2.3          3.3         1.0 versicolor
+95           5.6         2.7          4.2         1.3 versicolor
+96           5.7         3.0          4.2         1.2 versicolor
+97           5.7         2.9          4.2         1.3 versicolor
+98           6.2         2.9          4.3         1.3 versicolor
+99           5.1         2.5          3.0         1.1 versicolor
+100          5.7         2.8          4.1         1.3 versicolor
+101          6.3         3.3          6.0         2.5  virginica
+102          5.8         2.7          5.1         1.9  virginica
+103          7.1         3.0          5.9         2.1  virginica
+104          6.3         2.9          5.6         1.8  virginica
+105          6.5         3.0          5.8         2.2  virginica
+106          7.6         3.0          6.6         2.1  virginica
+107          4.9         2.5          4.5         1.7  virginica
+108          7.3         2.9          6.3         1.8  virginica
+109          6.7         2.5          5.8         1.8  virginica
+110          7.2         3.6          6.1         2.5  virginica
+111          6.5         3.2          5.1         2.0  virginica
+112          6.4         2.7          5.3         1.9  virginica
+113          6.8         3.0          5.5         2.1  virginica
+114          5.7         2.5          5.0         2.0  virginica
+115          5.8         2.8          5.1         2.4  virginica
+116          6.4         3.2          5.3         2.3  virginica
+117          6.5         3.0          5.5         1.8  virginica
+118          7.7         3.8          6.7         2.2  virginica
+119          7.7         2.6          6.9         2.3  virginica
+120          6.0         2.2          5.0         1.5  virginica
+121          6.9         3.2          5.7         2.3  virginica
+122          5.6         2.8          4.9         2.0  virginica
+123          7.7         2.8          6.7         2.0  virginica
+124          6.3         2.7          4.9         1.8  virginica
+125          6.7         3.3          5.7         2.1  virginica
+126          7.2         3.2          6.0         1.8  virginica
+127          6.2         2.8          4.8         1.8  virginica
+128          6.1         3.0          4.9         1.8  virginica
+129          6.4         2.8          5.6         2.1  virginica
+130          7.2         3.0          5.8         1.6  virginica
+131          7.4         2.8          6.1         1.9  virginica
+132          7.9         3.8          6.4         2.0  virginica
+133          6.4         2.8          5.6         2.2  virginica
+134          6.3         2.8          5.1         1.5  virginica
+135          6.1         2.6          5.6         1.4  virginica
+136          7.7         3.0          6.1         2.3  virginica
+137          6.3         3.4          5.6         2.4  virginica
+138          6.4         3.1          5.5         1.8  virginica
+139          6.0         3.0          4.8         1.8  virginica
+140          6.9         3.1          5.4         2.1  virginica
+141          6.7         3.1          5.6         2.4  virginica
+142          6.9         3.1          5.1         2.3  virginica
+143          5.8         2.7          5.1         1.9  virginica
+144          6.8         3.2          5.9         2.3  virginica
+145          6.7         3.3          5.7         2.5  virginica
+146          6.7         3.0          5.2         2.3  virginica
+147          6.3         2.5          5.0         1.9  virginica
+148          6.5         3.0          5.2         2.0  virginica
+149          6.2         3.4          5.4         2.3  virginica
+150          5.9         3.0          5.1         1.8  virginica
+
+cor(iris2$Petal.Length,iris2$Petal.Width)
+
+so we have excluded 'setosa' from dataset and got the correlation 0.82 wich is less than previous model (0.96) this is not good...
+
+##let's fit model
+fit_iris2<- lm(iris2$Petal.Length ~iris2$Petal.Width)
+fit_iris2
+
+
+> summary(fit_iris2)
+
+Call:
+lm(formula = iris2$Petal.Length ~ iris2$Petal.Width)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.9842 -0.3043 -0.1043  0.2407  1.2755 
+
+Coefficients:
+                  Estimate Std. Error t value Pr(>|t|)    
+(Intercept)         2.2240     0.1926   11.55   <2e-16 ***
+iris2$Petal.Width   1.6003     0.1114   14.36   <2e-16 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.4709 on 98 degrees of freedom
+Multiple R-squared:  0.6779,	Adjusted R-squared:  0.6746 
+F-statistic: 206.3 on 1 and 98 DF,  p-value: < 2.2e-16
+
+let's explore summary for new fit model in which we had excluded 'setosa' flower spices from dataset.
+
+1, noticed that correlation dropped from 0.96 to 0.082 this is not good
+2. resudual standard error not changed 
+	previous model:0.4801
+	new model: 0.4709
+3. We have significantly reduced dergee of freedom from
+	previous model:147
+	new model: 98
+almost reduced by 1/4 or 33% which is quite good we have reduced error in dataset. meaning we are very close to observed data point with our new model. on hindsight we have reduced 
+R-square significantly from 0.926 to 0.6779. This is also not good
+
+the f-statistic dropped from1841 to 206.3 with P-value unchanged which is ok.
+
+Overall, I don't think it is possible to remove Setosa iris flower from dataset for evaluation purpose.
+
+It is advisable to try differrent subsets of data to make sure they are all synced with each other.
+
+my blog: https://iamyourdatascientist.wordpress.com/
+github:
+
+
+
+
+
+
+
+
+
+
+
