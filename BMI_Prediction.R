@@ -16,13 +16,15 @@
 
 ## Added BMI column to include all the above index categories  0-5
 
+## youtube video part 1: https://youtu.be/ndTGM5sNLsM
+## youtube video part 2:https://youtu.be/gu4iYEOfL2o
 
 #Step 1. Clean and Import data
 rm(list = ls())
 .rs.restartR()
 
 getwd()
-setwd("C:/Users/yogesh.mangela/Documents/R")
+setwd("C:/Users/user/Documents/R")
 
 #step0<- read.csv("500_Person_Gender_Height_Weight_Index.csv", as.is = TRUE,Header=TRUE)
 BMI<- read.csv("500_Person_Gender_Height_Weight_Index.csv", as.is = TRUE)
@@ -49,7 +51,7 @@ library(psych)
 str(BMI)
 pairs.panels(BMI[c("Gender","Height","Weight","Index","BMI")])
 
-install.packages("mclust")
+##install.packages("mclust")
 library(mclust)
 #fit_BMI<- Mclust(BMI)
 
@@ -76,5 +78,4 @@ BMI_Cluster$cluster
 ## columns c("Gender","Height","Weight","Index","BMI")
 BMI_Cluster$cluster<- as.factor(BMI_Cluster$cluster)
 ggplot(BMI, aes(Height,Weight, color=BMI_Cluster$cluster))+ geom_point()
-
 
