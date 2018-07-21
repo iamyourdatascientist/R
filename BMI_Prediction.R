@@ -17,7 +17,8 @@
 ## Added BMI column to include all the above index categories  0-5
 
 ## youtube video part 1: https://youtu.be/ndTGM5sNLsM
-## youtube video part 2:https://youtu.be/gu4iYEOfL2o
+## youtube video part 2: https://youtu.be/gu4iYEOfL2o
+## youtube video part 3: https://youtu.be/qusrXuPVJlw
 
 #Step 1. Clean and Import data
 rm(list = ls())
