@@ -13,9 +13,12 @@ str(data)
 data1<- subset(data,select=c("Borough","Major.Category","Minor.Category","X201609","X201703","X201803","X201806","X201807"))
 str(data1)
 library(reshape2)
-library(reshape)
-library(ggplot2)
-
+##library(reshape) do not use "reshape", use "reshape2" package sometime it can get confuse and start throwing errors see below
+## Warning messages:
+# 1: In `[<-.factor`(`*tmp*`, ri, value = c(3L, 3L, 1L, 4L, 1L, 2L, 2L,  :
+#   invalid factor level, NAs generated
+# 2: In `[<-.factor`(`*tmp*`, ri, value = c(3L, 3L, 1L, 4L, 1L, 2L, 2L,  :
+#   invalid factor level, NAs generated
 
 data1
 ##Calculate average crime for Borough, Major crime and Minor Crime
