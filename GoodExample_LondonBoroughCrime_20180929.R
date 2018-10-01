@@ -1,47 +1,53 @@
 
+
+## Data Science - London Borough Crimes part 1
+## https://www.youtube.com/watch?v=yVdmJ1KKDb8&t=6s
+
 rm(list = ls())
 .rs.restartR()
+##dataset Website  https://data.london.gov.uk/dataset/recorded_crime_rates
+
 ##dataset available here:  https://data.london.gov.uk/download/recorded_crime_summary/644a9e0d-75a3-4c3a-91ad-03d2a7cb8f8e/MPS%20LSOA%20Level%20Crime%20%28most%20recent%2024%20months%29.csv
 ##https://data.london.gov.uk/dataset/recorded_crime_summary 
 ## go to link: MPS LSOA Level Crime (most recent 24 months)  
-
-data<-read.csv("C:/Users/User/Documents/R/londonBoroughCrimeV2.csv") ## stringsAsFactors = FALSE
+data<-read.csv("C:/Users/User/Documents/R/londonBoroughCrimeV1.csv")
 
 str(data)
-## Only selected Snapshot of data rather then selecting whole range of data. i.e 2016-Aug,2017-March,2018-March and 2018-July
-##Step 0.0
-data1<- subset(data,select=c("Borough","Major.Category","Minor.Category","X201609","X201703","X201803","X201806","X201807"))
-str(data1)
+##library(reshape)
 library(reshape2)
-##library(reshape) do not use "reshape", use "reshape2" package sometime it can get confuse and start throwing errors see below
-## Warning messages:
-# 1: In `[<-.factor`(`*tmp*`, ri, value = c(3L, 3L, 1L, 4L, 1L, 2L, 2L,  :
-#   invalid factor level, NAs generated
-# 2: In `[<-.factor`(`*tmp*`, ri, value = c(3L, 3L, 1L, 4L, 1L, 2L, 2L,  :
-#   invalid factor level, NAs generated
+## Only selected Snapshot of data rather then selecting whole range of data. i.e 2016-Aug,2017-March,2018-March and 2018-July
 
-data1
+##Step 0.0
+data<- subset(data,select=c(Borough,Major.Category,Minor.Category,X201608,X201703,X201803,X201806,X201807,stringsAsFactors = FALSE))
+str(data)
+
+
 ##Calculate average crime for Borough, Major crime and Minor Crime
-## step 1 to melt the data in ordet to calculate the avarage in multipale columns n R.
-## step 1.1 Borough Average
 
-Borough_ave<- melt(data1, id="Borough")
-Borough_ave<-subset(Borough_ave,variable%in%c("X201609","X201703","X201803","X201806","X201807"))
+## step 1 to melt the data in ordet to calculate the avarage in multipale columns n R.
+
+## step 1.1 Borough Average
+##install.packages("reshape"); 
+##library(reshape)
+Borough_ave<- melt(data, id="Borough",stringsAsFactors = FALSE) ## had to add "stringsAsFactors = FALSE" getting error
+Borough_ave<- subset(Borough_ave, variable%in%c("X201608","X201703","X201803","X201806","X201807"))
 Borough_ave
+
 ## each column should be listed vertically (Transpose) under Variable columns. this will help us to do some grouping later to get the average for each variable.
-## Step 1.2 not al Brough in our original dataset had all of these values and we also need to make sure all the values are numeric.
+## Step 1.2 not all Brough in our original dataset had all of these values and we also need to make sure all the values are numeric.
 
 Borough_ave<- (na.omit(Borough_ave))
 Borough_ave$value<- as.numeric(Borough_ave$value)
 Borough_ave
+##1773 rows
 
-##dim(df.melt.id)
 ##Step 2 once it's done we can cast the data back to make it wide again. Or Transpose it back again
 ## This will have a columns for each of the fields we filtered and will now contain the average by Borough. 
 ##At the sametime will rename columns i.e BAvg2016-Aug,BAvg2017-March,BAvg2018-March and BAvg2018-July
 ##c("Borough","Major.Category","Minor.Category","X201608","X201703","X201803","X201807")
+
 Borough_ave<- dcast(Borough_ave, Borough~variable, mean)
-colnames(Borough_ave)[2:6]<-c("BAvg2016-Sept","BAvg2017-March","BAvg2018-March","BAvg2018-June","BAvg2018-July")
+colnames(Borough_ave)[2:6]<-c("BAvg2016-Aug","BAvg2017-March","BAvg2018-March","BAvg2018-June","BAvg2018-July")
 Borough_ave
 
 ## Step 3 Let's do exact samething with Major Crime category
@@ -156,13 +162,6 @@ potentially_high_Crime_Borough<- subset(data,RealCrimeIndex>500)
 potentially_high_Crime_Borough
 
 
-#sort by index (ascending) and cyl (descending)
-##newdata <- mtcars[order(mpg, -cyl),] 
-
-potentially_high_Crime_BoroughOrder<- potentially_high_Crime_Borough[order(data$RealCrimeIndex),]
-potentially_high_Crime_BoroughOrder
-
-
 potentially_high_Crime<- subset(data,RealCrimeIndex>=1)
 potentially_high_Crime
 
@@ -181,6 +180,18 @@ write.csv(potentially_high_Crime,'LondonBoroughCrimeIndex.csv')
 
 
 
+
+
+
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
 
 
 
