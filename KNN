@@ -1,0 +1,224 @@
+
+##  The k-means clustering algorithm ##
+
+# Step 1: Step 1 – collecting data
+#-----------------------------------------------------------------------------------------------------#      
+#-----------------------------------------------------------------------------------------------------#
+
+## Github: https://github.com/iamyourdatascientist/R/blob/master/snsdata.csv
+
+      rm(list = ls())
+      .rs.restartR()  ### Fresh memory
+      getwd()
+      setwd("C:/Users/User/Documents/R") # Set workign directory
+      getwd()
+      
+      knn<-read.csv("snsdata.csv",stringsAsFactors = FALSE)
+
+
+# Step 2: exploring and preparing the data
+#-----------------------------------------------------------------------------------------------------#      
+#-----------------------------------------------------------------------------------------------------#
+      
+      str(knn)
+      
+      ## has 30000 obs. of  40 variables:
+      
+      table(knn$gender)
+      
+      # F       M 
+      # 22054  5222   = 27276  however we noticed above that dataset has 30000 observations. 
+      # 30000 - 27276 = 2724 , so where is 2724 observations
+      
+      table(knn$gender, useNA = "ifany")
+      
+     #      F     M    <NA> 
+     #   22054  5222  2724
+     #  so there are 2724 NA values in the dataset
+
+      
+      na<-(2724/30000)*100 
+      f<- (22052/30000)*100 # 73 %
+      M<- (5222/30000)*100  # 17 %
+      na
+      f
+      M
+      
+      # About 9.8 % NA or has missing gender which is quite sinificant (I think), Be careful when dealing with missing values
+      # 73% Female and 17% Male teenagers
+      
+      # Lets check the range of Age in our sns dataset.
+      
+      summary(knn$age)
+      
+      
+      # Min.   1st Qu.  Median    Mean   3rd Qu.    Max.      NA's 
+      # 3.086  16.310  17.290    17.990  18.260    106.900    5086 
+      ## So in our dataset we have some children too minimum age 3 and maximum 106 years old. Hummmmmm bit odd isn't it??
+      #  Highly unlikely that a 3 year old and a 106 year old is going ti high school. may be it's Data validation issue. miss typed.
+      
+      ageNA<- (5086/30000)*100
+      ageNA
+      # 16.95 17% NA missing age
+      # Before we go further we need to clean data
+      # We want to replace anything above 20 years of age with NA, becasue nobody attends high school age of 20+
+      # so we will treat them as missing values NA. 
+      
+      knn$age<- ifelse(knn$age>=13 & knn$age <20, knn$age, NA)
+      knn
+      
+      summary(knn$age)
+      #    Min.   1st Qu.  Median    Mean   3rd Qu.    Max.    NA's 
+      #    13.03   16.30   17.26    17.25   18.22     20.00    5523 
+      
+      # now our dataset has age range between 13 and 20. 
+      # notice previous NA was 5086 after grouping <13 and > 20 as NA it yeilds 5523  
+      
+      # 5523-5086 = 437 was replaced with NA
+      
+      knn$f<-ifelse(knn$gender == "F" & !is.na(knn$gender),1,0) ## if Gender is not Female AND not unknown then Obviously Male,
+      
+      knn$no_gender<- ifelse(is.na(knn$gender),1,0) ## If Gender missing then 1 or 0
+      
+      table(knn$gender, useNA = "ifany")
+      #    F     M    <NA> 
+      #   22054  5222  2724
+      
+      table(knn$f, useNA = "ifany")
+      #     0     1 
+      #   7946  22054  ## 22054 female
+      
+      table(knn$no_gender,useNA = "ifany")
+      
+      # 0       1 
+      # 27276  2724  There are about 2724 no gender
+      
+      mean(knn$age)
+      # [1] NA
+      
+      mean(knn$age, na.rm=TRUE) ## NA values are trimmed before computing mean
+     # [1] 17.25243
+      
+    # let's calculate Average Age by year
+    
+      aggregate(data=knn, age~gradyear, mean, na.rm=TRUE)
+      # 
+      # gradyear      age
+      # 1     2006 18.65586
+      # 2     2007 17.70617
+      # 3     2008 16.76770
+      # 4     2009 15.81957
+      # 
+      
+      ## as gradyear increased the Average / Mean age decreases. may be student's are applying for school bit early.
+      
+    # let's calculate Average Age by Gender
+      
+      aggregate(data=knn,age~gender, mean, na.rm=TRUE)
+
+            # gender      age
+      # 1      F 17.20469
+      # 2      M 17.45956
+      # 
+      
+      # can see no much difference in mean 
+      
+      
+      ave_age<- ave(knn$age, knn$gradyear, FUN = function(x) mean(x, na.rm=TRUE))
+
+      ave_age
+      
+      knn$age<- ifelse(is.na(knn$age),ave_age,knn$age)
+      
+      summary(knn$age)
+
+      #   Min.  1st Qu.  Median    Mean  3rd Qu.    Max. 
+      #  13.03   16.28   17.24    17.24   18.21    20.00 
+      
+      ## just for FUN 
+      ave_gender<- ave(knn$age, knn$gender, FUN = function(y)mean(y,na.rm=TRUE))
+      ave_gender  
+      
+      
+      
+            
+# Step 3: training a model on the data
+#-----------------------------------------------------------------------------------------------------#      
+#-----------------------------------------------------------------------------------------------------#
+
+      str(knn)
+      ## now it has 42 observation remember we created f, and no_gender columns. Last two columns
+      # We will only use first 36 original observation. 
+      k<- knn[5:30]
+      
+      # .# 'data.frame':	30000 obs. of  42 variables:
+      # 1.# $ gradyear    : int  2006 2006 2006 2006 2006 2006 2006 2006 2006 2006 ...
+      # 2.# $ gender      : chr  "M" "F" "M" "F" ...
+      # 3.# $ age         : num  19 18.8 18.3 18.9 19 ...
+      # 4.# $ friends     : int  7 0 69 0 10 142 72 17 52 39 ...
+      # 5.# $ basketball  : int  0 0 0 0 0 0 0 0 0 0 ...
+      # 6.# $ football    : int  0 1 1 0 0 0 0 0 0 0 ...
+      # 7.# $ soccer      : int  0 0 0 0 0 0 0 0 0 0 ...
+      # 8.# $ softball    : int  0 0 0 0 0 0 0 1 0 0 ...
+      
+      # column 5 to 30 are nominal variables boolean 0's and 1's, if we were to add col 3 and col4 it would hughly skew aour prediction / cluster.
+      
+      ## First Normalise data by applying Z scores, so it will have mean on 0 and S.D with 1
+      
+      k_z<- as.data.frame(lapply(k,scale))
+      
+
+      # to help us understand and predict better we will cluster teenager into 5 groups
+      
+      set.seed(12345)
+      k_clusters<- kmeans(k_z,5)
+      
+      
+     
+# Step 4: evaluating model performance
+#-----------------------------------------------------------------------------------------------------#      
+#-----------------------------------------------------------------------------------------------------#
+
+      k_clusters$size
+      k_clusters$totss
+      k_clusters$withinss
+      k_clusters$tot.withinss
+      k_clusters$betweenss
+      k_clusters$iter
+      k_clusters$ifault
+      k_clusters$cluster
+
+      k_clusters$centers
+      
+     
+     ## now let's apply cluster back to our original dataset
+      
+  
+# Step 5: improving model performance
+#-----------------------------------------------------------------------------------------------------#      
+#-----------------------------------------------------------------------------------------------------#
+      
+      
+      knn$cluster<- k_clusters$cluster
+      
+      ##write.csv(knn,'new_KNN_SNS.csv')
+      
+      knn[1:5, c("cluster","gender","age","friends")]
+      str(knn)
+      
+      aggregate(data=knn,age~ cluster, mean)
+      ##aggregate(data=knn,gradyear~ cluster,mean)
+     aggregate(data=knn, friends~cluster, mean)
+      
+      aggregate(data=knn, f~cluster, mean)
+      
+      ##aggregate(data=knn, no_gender~cluster, mean)
+      
+      
+      ##write.csv(k_z,'Z_Score_SNS.csv')
+      
+      
+# Conclusion
+#-----------------------------------------------------------------------------------------------------#      
+#-----------------------------------------------------------------------------------------------------#
+      
