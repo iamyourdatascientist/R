@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------------------------------#
 
 ## Github: https://github.com/iamyourdatascientist/R/blob/master/snsdata.csv
-
+ 
       rm(list = ls())
       .rs.restartR()  ### Fresh memory
       getwd()
