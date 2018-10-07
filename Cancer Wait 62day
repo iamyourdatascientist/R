@@ -1,0 +1,163 @@
+##  The k-means clustering algorithm using Cancer wait 62days##
+
+# Step 1: Step 1 – collecting data
+#-----------------------------------------------------------------------------------------------------#      
+#-----------------------------------------------------------------------------------------------------#
+
+## Github: https://github.com/iamyourdatascientist/R/blob/master/snsdata.csv
+## get dataset here: http://webarchive.nationalarchives.gov.uk/20180321145042/https://www.health-ni.gov.uk/sites/default/files/publications/dhssps/hs-niwts-cwt-62-day-wait-by-tumour.csv
+
+rm(list = ls())
+.rs.restartR()  ### Fresh memory
+getwd()
+setwd("C:/Users/User/Documents/R") # Set workign directory
+getwd()
+
+cancer<-read.csv("hs-niwts-cwt-62-day-wait-by-tumourV2.csv",stringsAsFactors = FALSE)
+
+cancer
+# Step 2: exploring and preparing the data
+
+str(cancer)
+
+library(reshape2)
+cancer<-subset(cancer, Select=c(Treatment_Month,Tumour_Site,No_treated_within_62_days,No_treated_over_62_days,Total_no_treated,X._treated_within_62_days))
+##Step 3 rename columns
+
+colnames(cancer)<-c("Treatment_Month","Tumour_Site","No_treated_within_62_days","No_treated_over_62_days","Total_no_treated","%_treated_within_62_days")
+
+cancer1<-cancer
+
+str(cancer1)
+
+str(cancer)
+
+library(dplyr)
+
+## step 4 filtering only three types of cancer 
+cancer<-filter(cancer,Tumour_Site== "Breast Cancer" | Tumour_Site==  "Skin Cancers"| Tumour_Site== "Haematological Cancers")
+str(cancer)
+cancer
+## Step 5 removing NA columns
+##cancer[cancer$`%_treated_within_62_days`=='N/A',]<- NA
+
+cancer<- cancer[!is.na(names(cancer))]
+
+
+str(cancer)
+cancer
+#dems <- ds[ds$pid3 == "Democrat",]
+
+
+table(cancer$Tumour_Site)
+
+# table(cancer$Treatment_Month)
+# table(cancer$No_treated_within_62_days)
+
+# cancer$Tumour_Site<- factor(cancer$Tumour_Site,levels = c("Brain Central Tumour","Brain/Central Nervous System","Breast Cancer","Gynae Cancers","Haematological Cancers"
+#                                                            ,"Head/Neck Cancer","Lower Gastrointestinal Cancer","Lung Cancer","Other","Sarcomas","Skin Cancers","Upper Gastointestinal Cancer","Urological Cancer"))
+
+cancer$Tumour_Site<- factor(cancer$Tumour_Site,levels = c("Breast Cancer","Haematological Cancers","Skin Cancers"))
+
+#cancer[cancer=="N/A"]<- NA
+
+cancer<-na.omit(cancer)
+cancer
+
+# percentage Tumour site
+round(prop.table(table(cancer$Tumour_Site))*100, digits = 1)
+
+str(cancer)
+##summary 
+
+summary(cancer[c("No_treated_within_62_days","No_treated_over_62_days","Total_no_treated","%_treated_within_62_days")])
+## normalise data
+
+cancer_n<-as.data.frame(lapply(cancer[3:5],normalize))
+summary(cancer_n)
+
+# cancer_n<- as.data.frame(lapply(cancer[3:5],center))
+# str(cancer_n)
+# 
+# install.packages("BBmisc")
+# library(BBmisc)
+# 
+# cancer_n<-normalize(cancer[3:5], method = "standardize", range = c(0, 1), margin = 1L, on.constant = "quiet")
+# cancer_n<-normalize(cancer[3:5], method = "center", range = c(0, 1), margin = 1L, on.constant = "quiet")
+# cancer_n<-normalize(cancer[3:5], method = "scale", range = c(0, 1), margin = 1L, on.constant = "quiet")
+# summary(cancer_n$No_treated_within_62_days)
+
+str(cancer)
+#'data.frame':	1270 obs. of  6 variables: 1270-1149
+
+317*.70  # 70% data 222 obs.
+
+317*.30  # 30% of data is 95 observations/rows/records.
+
+## create Traning and Test dataset
+
+cancer_training<- cancer_n[1:222,]
+cancer_test<- cancer_n[223:317,]
+
+cancer_training_labels<- cancer[1:222,2]
+cancer_test_labels<- cancer[223:317,2]
+str(cancer)
+## we remove target variable "Tumour_Site"
+
+library(class)
+# sqrt(889) 29.81, will use k=30
+unique(cancer$Tumour_Site)
+cancer_test_predict<- knn(train = cancer_training, test = cancer_test, cl=cancer_training_labels, k=3)
+##Step 4: evaluating model performance
+#install.packages("gmodels")
+library(gmodels)
+CrossTable(x= cancer_test_labels, y=cancer_test_predict, prop.chisq=FALSE)
+## Z-score standardization
+cancer_z<- as.data.frame(scale(cancer[3:5]))
+cancer_z
+
+summary(cancer_z)
+
+cancer_training<- cancer_z[1:222,]
+cancer_test<- cancer_z[223:317,]
+
+cancer_training_labels<- cancer[1:222,2]
+cancer_test_labels<- cancer[223:317,2]
+
+
+# sqrt(889) 29.81, will use k=30
+unique(cancer$Tumour_Site)
+cancer_test_predict<- knn(train = cancer_training, test = cancer_test, cl=cancer_training_labels, k=30)
+
+
+
+CrossTable(x= cancer_test_labels, y=cancer_test_predict, prop.chisq=FALSE)
+
+summary(CrossTable(x= cancer_test_labels, y=cancer_test_predict, prop.chisq=FALSE))
+cancer_test_predict
+##str(cancer_test_predict)
+## merge data 
+str(cancer)
+
+
+
+#write.csv(CrossTable(x= cancer_test_labels, y=cancer_test_predict, prop.chisq=FALSE),'Z_Score_cancer_prediction.csv')
+##Step 4: evaluating model performance
+#install.packages("gmodels")
+
+library(ggplot2)
+
+##ggplot(iris,aes(x = Sepal.Length, y = Sepal.Width, col= Species)) + geom_point()
+ggplot(cancer1,aes(x=No_treated_within_62_days,y=No_treated_over_62_days, col=Tumour_Site))+
+  geom_point()
+
+
+ggplot(cancer1,aes(x=No_treated_over_62_days,y=`%_treated_within_62_days`, col=Tumour_Site))+
+  geom_point()
+
+
+
+cancer
+
+
+
