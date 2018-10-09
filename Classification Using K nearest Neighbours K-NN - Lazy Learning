@@ -1,0 +1,150 @@
+##  The k-means clustering algorithm ##
+##  youtube Video:https://youtu.be/027j2kA70ck
+
+# Step 1: Step 1 – collecting data
+#-----------------------------------------------------------------------------------------------------#      
+#-----------------------------------------------------------------------------------------------------#
+
+## Github: https://github.com/iamyourdatascientist/R/blob/master/wisc_bc_data.csv
+
+    rm(list = ls())
+    .rs.restartR()  ### Fresh memory
+    getwd()
+    setwd("C:/Users/User/Documents/R") # Set workign directory
+    getwd()
+    
+    knn<-read.csv("wisc_bc_data.csv",stringsAsFactors = FALSE)
+
+
+# Step 2: exploring and preparing the data
+#-----------------------------------------------------------------------------------------------------#      
+#-----------------------------------------------------------------------------------------------------#
+
+    str(knn)
+##'data.frame':	569 obs. of  32 variables:
+
+    knn<- knn[-1]
+    
+    str(knn)
+##'data.frame':	569 obs. of  31 variables:
+##'
+##'
+
+    table(knn$diagnosis)
+    
+    summary(knn$radius_mean)
+
+##' R ML classifiers require that the target feature to be factor data type and we will rename: "B" and "M" , 
+
+
+    knn$diagnosis<-factor(knn$diagnosis,level=c("B","M"),labels=c("Benign","Malignant"))
+##'A benign tumor is a tumor that does not invade its surrounding tissue or spread around the body. 
+##'A malignant tumor is a tumor that may invade its surrounding tissue or spread around the body. 
+    round(prop.table(table(knn$diagnosis))*100, digits = 1)
+    
+    str(knn)
+    summary(knn[c("radius_mean","area_mean","smoothness_mean")])
+
+##' We neet to create normalize function
+
+    normalize<- function(x) {return((x - min(x)) / ( max(x)- min(x)))}
+    
+    
+    normalize(c(1,2,3,4,5,6))
+    
+    normalize(c(10,20,30,40,50,60,70,80,90,100,150))
+    
+    str(knn)
+    ##'
+    ##'    'data.frame':	569 obs. of  31 variables:
+    ##'  [1]  $ diagnosis        : Factor w/ 2 levels "Benign","Malignant": 1 1 1 1 1 1 1 2 1 1 ...
+    ##'  [2]  $ radius_mean      : num  12.3 10.6 11 11.3 15.2 ...
+    ##'  [3]  $ texture_mean     : num  12.4 18.9 16.8 13.4 13.2 ...
+    ##'  [4]  $ perimeter_mean   : num  78.8 69.3 70.9 73 97.7 ...
+    ##'  [5]  $ area_mean        : num  464 346 373 385 712 ...
+    ##'  ..    ..   ....        .. .... .....................
+    ##'  [31]
+    ##'  # radius_mean .... dimension_worst
+    
+    knn_normalize<- as.data.frame(lapply(knn[2:31], normalize))
+    
+    summary(knn_normalize$area_mean)
+    summary(knn_normalize$radius_mean)
+    
+# Preparing data - creating Trainign and test datasets
+    
+    str(knn_normalize) # data.frame':	569 obs. of  30 variables:
+    
+  #' Training dataset 80% : 569*.80 = 455
+  #' Test dataset 20 %   : 569*0.20 = 113
+  
+    
+    knn_trainig<- knn_normalize[1:455, ]
+    knn_test<- knn_normalize[456:569,]
+    
+
+# we exclude target variable "diagnostic"
+  str(knn)
+    
+    knn_trainig_labels<- knn[1:455,1]
+    knn_test_labels<- knn[456:569,1]
+    
+
+# Step 3: training a model on the data
+#-----------------------------------------------------------------------------------------------------#      
+#-----------------------------------------------------------------------------------------------------#
+
+
+## you will need package called "class" 
+##install.packages("calss")
+    library(class)
+    
+##' how does KNN structure look like???
+##' 
+##' k<- knn(training dataset, test dataset, class, k)
+##' 
+##' TRAINING is a data frame which has numeric trainign data.
+##' TEST which has numeric test data
+##' CLASS factor vactor with the class for each row in the traiing dataset.
+##' K is integer value suggesting the number of nearest neighbours
+##' 
+
+    knn_test_prediction<- knn(train=knn_trainig, test=knn_test,cl=knn_trainig_labels, k=21)
+    
+    summary(knn_test_prediction)
+
+
+# Step 4: evaluating model performance
+#-----------------------------------------------------------------------------------------------------#      
+#-----------------------------------------------------------------------------------------------------#
+    
+    library(gmodels)
+    CrossTable(x=knn_test_labels, y=knn_test_prediction, prop.chisq=FALSE)
+    
+
+# Step 5: improving model performance z-score standardisation
+#-----------------------------------------------------------------------------------------------------#      
+#-----------------------------------------------------------------------------------------------------#
+
+    knn_z<- as.data.frame(scale(knn[-1]))
+    summary(knn_z$area_mean)
+
+    knn_trainig_z<- knn_z[1:455, ]
+    knn_test_z<- knn_z[456:569,]
+    
+    
+    # we exclude target variable "diagnostic"
+    
+    knn_trainig_labels_z<- knn[1:455,1]
+    knn_test_labels_z<- knn[456:569,1]
+    
+
+    knn_test_prediction_z<- knn(train=knn_trainig_z, test=knn_test_z,cl=knn_trainig_labels_z, k=2)
+    
+    library(gmodels)
+    CrossTable(x=knn_test_labels_z, y=knn_test_prediction_z, prop.chisq=FALSE)
+    
+
+# Conclusion
+#-----------------------------------------------------------------------------------------------------#      
+#-----------------------------------------------------------------------------------------------------#
